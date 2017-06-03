@@ -248,6 +248,244 @@ public class Grid {
 		}
 	}
 
+	public void paintGrid(){
+		if (main_frame != null) {
+			main_frame.dispose();
+		}
+
+		int nodeSize = 32;
+		int gap = 5;
+		main_frame = new JFrame("Unhappy Path");
+		main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		main_frame.setLayout(null);
+		main_frame.setSize((columns*nodeSize)+((columns+2)*gap) > 1050 ? (columns*nodeSize)+((columns+2)*gap) : 1050, 30+30+(lines*nodeSize)+((lines+2)*gap));
+		main_frame.setLocationRelativeTo(null);
+		main_frame.setResizable(false);
+		nodes = new JButton[lines][columns];
+		for(int i = 0; i < lines; i++){
+			for(int j = 0; j < columns; j++){
+				nodes[i][j] = new JButton("" + (matrix[i][j].getId())); // set text
+				nodes[i][j].setBorder(null);
+				if(matrix[i][j].isValid()){
+					nodes[i][j].setBackground(validColor);
+				}
+				else{
+					nodes[i][j].setBackground(invalidColor);
+				}
+				nodes[i][j].setBounds(gap+(j*(nodeSize+gap)),30+gap+(i*(nodeSize+gap)),nodeSize,nodeSize);
+				nodes[i][j].addMouseListener(new MyPopupTriggerListener(new MyPopupMenu(i, j)));
+				nodes[i][j].addActionListener(new MyActionListener(i, j) {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						toogleValid(i, j);
+					}
+				});
+				nodes[i][j].setVisible(true);
+				main_frame.add(nodes[i][j]);
+			}
+		}
+
+		JButton runBtn = new JButton("Run");
+		runBtn.setBounds(5, 5, 150, 25);
+		runBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		runBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Thread t = new Thread(new Runnable() {
+					public void run() {
+						try {
+							happyPath();
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					}
+				});
+				t.start();
+			}
+		});
+		main_frame.add(runBtn);
+
+		JButton resetBtn = new JButton("Reset");
+		resetBtn.setBounds(160, 5, 150, 25);
+		resetBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		resetBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Thread t = new Thread(new Runnable() {
+					public void run() {
+						reset();
+					}
+				});
+				t.start();
+			}
+		});
+		main_frame.add(resetBtn);
+
+		JTextField delayTxtFld = new JTextField();
+		delayTxtFld.setBounds(315, 5, 50, 25);
+		main_frame.add(delayTxtFld);
+
+		JButton setDelayBtn = new JButton("> Set Delay");
+		setDelayBtn.setBounds(370, 5, 150, 25);
+		setDelayBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		setDelayBtn.addActionListener(new MyActionListener(delayTxtFld, 0) {
+			public void actionPerformed(ActionEvent e) {
+				Grid.delay = Integer.parseInt(this.delay.getText());
+			}
+		});
+		main_frame.add(setDelayBtn);
+
+		JTextField bombPowerTxtFld = new JTextField();
+		bombPowerTxtFld.setBounds(525, 5, 50, 25);
+		main_frame.add(bombPowerTxtFld);
+
+		JButton setBombPowerBtn = new JButton("> Set Bomb Power");
+		setBombPowerBtn.setBounds(580, 5, 150, 25);
+		setBombPowerBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		setBombPowerBtn.addActionListener(new MyActionListener(bombPowerTxtFld, 1) {
+			public void actionPerformed(ActionEvent e) {
+				Grid.bombPower = Integer.parseInt(this.bombPower.getText());
+			}
+		});
+		main_frame.add(setBombPowerBtn);
+
+		JButton openStateBtn = new JButton("Open State");
+		openStateBtn.setBounds(735, 5, 150, 25);
+		openStateBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		openStateBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int returnVal = fc.showOpenDialog(Grid.main_frame);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					try {
+						@SuppressWarnings("resource")
+						Scanner scan = new Scanner(file);
+						int lines = scan.nextInt();
+						int columns = scan.nextInt();
+						Grid.grid = new Grid(lines, columns);
+						setSource(scan.nextInt());
+						setDestiny(scan.nextInt());
+						ArrayList<Integer> invalidNodesIds = new ArrayList<Integer>();
+						while(scan.hasNextInt()) {
+							invalidNodesIds.add(scan.nextInt());
+						}
+						int[] invalidNodes = new int[invalidNodesIds.size()];
+						for (int i = 0; i < invalidNodesIds.size(); i++) {
+							invalidNodes[i] = invalidNodesIds.get(i);
+						}
+						injectFaultListByNode(invalidNodes);
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		main_frame.add(openStateBtn);
+
+		JButton saveStateBtn = new JButton("Save State");
+		saveStateBtn.setBounds(890, 5, 150, 25);
+		saveStateBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		saveStateBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (Grid.source != null && Grid.destiny != null) {
+					int returnVal = fc.showSaveDialog(Grid.main_frame);
+
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						File file = fc.getSelectedFile();
+						try {
+							FileWriter fileWriter = new FileWriter(file);
+							fileWriter.write("" + Grid.lines + " " + Grid.columns + "\n");
+							fileWriter.write("" + Grid.source.id + " " + Grid.destiny.id + "\n");
+							for (int i = 0; i < matrix.length; i++) {
+								for (int j = 0; j < matrix[i].length; j++) {
+									if (!matrix[i][j].valid) {
+										fileWriter.write("" + matrix[i][j].id + " ");
+									}
+								}
+							}
+							fileWriter.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				} else {
+					System.out.println("Defina um nó Source e um nó Destiny.");
+				}
+			}
+		});
+		main_frame.add(saveStateBtn);
+
+		main_frame.setVisible(true);
+	}
+
+	public static void dropBomb(int i, int j, int power) {
+		setInvalid(i, j);
+		nodes[i][j].setBackground(invalidColor);
+
+		if (power > 0) {
+			if (j-1 >= 0) {
+				dropBomb(i, j-1, power-1);
+			}
+			if (i-1 >= 0) {
+				dropBomb(i-1, j, power-1);
+			}
+			if (j+1 <= columns-1) {
+				dropBomb(i, j+1, power-1);
+			}
+			if (i+1 <= lines-1) {
+				dropBomb(i+1, j, power-1);
+			}
+
+		}
+	}
+
+	public void toogleValid(int i, int j) {
+		if (nodes[i][j].getBackground() == validColor) {
+			setInvalid(i, j);
+		} else if (nodes[i][j].getBackground() == invalidColor) {
+			setValid(i, j);
+		}
+	}
+
+	public void reset() {
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[i].length; j++) {
+				setValid(i, j);
+				matrix[i][j].decisions = null;
+				matrix[i][j].distance = -1;
+				matrix[i][j].visited = false;
+			}
+		}
+		if (state.source != null) {
+			setSource(state.source);
+		}
+		if (state.destiny != null) {
+			setDestiny(state.destiny);
+		}
+		if (state.invalidNodes != null) {
+			injectFaultListByNode(state.invalidNodes);
+		}
+	}
+
+	public void saveState() {
+		ArrayList<Integer> invalidNodesIds = new ArrayList<Integer>();
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[i].length; j++) {
+				if (!matrix[i][j].valid) {
+					invalidNodesIds.add(matrix[i][j].id);
+				}
+			}
+		}
+
+		int[] invalidNodes = new int[invalidNodesIds.size()];
+		for (int i = 0; i < invalidNodesIds.size(); i++) {
+			invalidNodes[i] = invalidNodesIds.get(i);
+		}
+
+		state = new State(source.id, destiny.id, invalidNodes);
+	}
+
 	public static void main(String args[]) throws InterruptedException {
 		Grid.getSharedInstance();
 	}
