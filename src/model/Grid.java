@@ -119,7 +119,40 @@ public class Grid {
 	}
 
 	public ArrayList<Point> calcDistances(){
-		return new ArrayList<Point>();
+		ArrayList<Point> decisions = new ArrayList<Point>(); 																					// COMPLEXIDADE: 1
+		// LEFT
+		if(actual.j!=0 && matrix[actual.i][actual.j-1].valid){ // Se não estiver na esquerda e o da esquerda for valido 						// COMPLEXIDADE: 1
+			if (matrix[actual.i][actual.j-1].distance == -1) { 																					// COMPLEXIDADE: 1
+				matrix[actual.i][actual.j-1].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i), 2) + Math.pow((destiny.j)-(actual.j-1), 2)); // COMPLEXIDADE: 1
+			}
+			Point p = new Point(actual.i, actual.j-1); 																							// COMPLEXIDADE: 1
+			decisions.add(p); 																													// COMPLEXIDADE: 1
+		}
+		// UP
+		if(actual.i!=0 && matrix[actual.i-1][actual.j].valid){ //Se não estiver em cima e o de cima for valido 									// COMPLEXIDADE: 1
+			if (matrix[actual.i-1][actual.j].distance == -1) { 																					// COMPLEXIDADE: 1
+				matrix[actual.i-1][actual.j].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i-1), 2) + Math.pow((destiny.j)-(actual.j), 2)); // COMPLEXIDADE: 1
+			}
+			Point p = new Point(actual.i-1, actual.j); 																							// COMPLEXIDADE: 1
+			decisions.add(p); 																													// COMPLEXIDADE: 1
+		}
+		// RIGHT
+		if(actual.j!=columns-1 && matrix[actual.i][actual.j+1].valid){ //Se não estiver na direita e o da direita for valido					// COMPLEXIDADE: 1
+			if (matrix[actual.i][actual.j+1].distance == -1) { 																					// COMPLEXIDADE: 1
+				matrix[actual.i][actual.j+1].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i), 2) + Math.pow((destiny.j)-(actual.j+1), 2)); // COMPLEXIDADE: 1
+			}
+			Point p = new Point(actual.i, actual.j+1); 																							// COMPLEXIDADE: 1
+			decisions.add(p); 																													// COMPLEXIDADE: 1
+		}
+		// DOWN
+		if(actual.i!=lines-1 && matrix[actual.i+1][actual.j].valid){ //Se não estiver em baixo e o de baixo for válido 							// COMPLEXIDADE: 1
+			if (matrix[actual.i+1][actual.j].distance == -1) { 																					// COMPLEXIDADE: 1
+				matrix[actual.i+1][actual.j].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i+1), 2) + Math.pow((destiny.j)-(actual.j), 2)); // COMPLEXIDADE: 1
+			}
+			Point p = new Point(actual.i+1, actual.j); 																							// COMPLEXIDADE: 1
+			decisions.add(p); 																													// COMPLEXIDADE: 1
+		}
+		return decisions;
 	}
 
 	public boolean wasVisited(Point p) {
@@ -127,7 +160,10 @@ public class Grid {
 	}
 
 	public boolean isAdjacent(int id1, int id2) {
-		return true;
+		return ((id1/columns == id2/columns) && (id1%columns == (id2%columns)+1)) ||
+				((id1/columns == id2/columns) && (id1%columns == (id2%columns)-1)) ||
+				((id1/columns == (id2/columns)-1) && (id1%columns == id2%columns)) ||
+				((id1/columns == (id2/columns)+1) && (id1%columns == id2%columns));	// COMPLEXIDADE: 1
 	}
 
 	public static void main(String args[]) throws InterruptedException {
