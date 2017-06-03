@@ -166,6 +166,88 @@ public class Grid {
 				((id1/columns == (id2/columns)+1) && (id1%columns == id2%columns));	// COMPLEXIDADE: 1
 	}
 
+	/*
+	 * Actual and Visisted
+	 */
+
+	public void setActual(int id) {					//>> COMPLEXIDADE: 1
+		actual = matrix[id/columns][id%columns]; 	// COMPLEXIDADE: 1
+		nodes[id/columns][id%columns].setBackground(actualColor);
+		nodes[id/columns][id%columns].repaint();
+	}
+
+	public void setVisited(Node node) { //>> COMPLEXIDADE: 2
+		node.visited = true;
+		nodes[node.i][node.j].setBackground(visitedColor); 	// COMPLEXIDADE: 1
+		nodes[node.i][node.j].repaint();					// COMPLEXIDADE: 1
+	}
+
+	/*
+	 * Source and Destiny
+	 */
+
+	public static void setSource(int id) {
+		if (source == null) {
+			source = matrix[id/columns][id%columns];
+			nodes[id/columns][id%columns].setBackground(sourceColor);
+			nodes[id/columns][id%columns].repaint();
+		} else {
+			nodes[source.id/columns][source.id%columns].setBackground(validColor);
+			matrix[source.id/columns][source.id%columns].setValid(true);
+			source = matrix[id/columns][id%columns];
+			nodes[id/columns][id%columns].setBackground(sourceColor);
+			nodes[id/columns][id%columns].repaint();
+		}
+	}
+
+	public static void setSource(int i, int j) {
+		setSource(i*lines+j);
+	}
+
+	public static void setDestiny(int id) {
+		if (destiny == null) {
+			destiny = matrix[id/columns][id%columns];
+			nodes[id/columns][id%columns].setBackground(destinyColor);
+			nodes[id/columns][id%columns].repaint();
+		} else {
+			nodes[destiny.id/columns][destiny.id%columns].setBackground(validColor);
+			matrix[destiny.id/columns][destiny.id%columns].setValid(true);
+			destiny = matrix[id/columns][id%columns];
+			nodes[id/columns][id%columns].setBackground(destinyColor);
+			nodes[id/columns][id%columns].repaint();
+		}
+	}
+
+	public static void setDestiny(int i, int j) {
+		setDestiny(i*lines+j);
+	}
+
+	/*
+	 * Valid and Invalid
+	 */
+
+	public static void setInvalid(int i, int j) { 		//>> COMPLEXIDADE: 1
+		matrix[i][j].setValid(false); 					// COMPLEXIDADE: 1
+		nodes[i][j].setBackground(invalidColor);
+		nodes[i][j].repaint();
+	}
+
+	public void setValid(int i, int j) {
+		matrix[i][j].setValid(true);
+		nodes[i][j].setBackground(validColor);
+		nodes[i][j].repaint();
+	}
+
+	public void injectFaultListByNode(int[] routers){
+		for(int i = 0; i < routers.length; i++){
+			if(matrix[(routers[i]/columns)][(routers[i]%columns)].isValid()){
+				matrix[(routers[i]/columns)][(routers[i]%columns)].setValid(false);
+				nodes[(routers[i]/columns)][(routers[i]%columns)].setBackground(invalidColor);
+				nodes[(routers[i]/columns)][(routers[i]%columns)].repaint();
+			}
+		}
+	}
+
 	public static void main(String args[]) throws InterruptedException {
 		Grid.getSharedInstance();
 	}
