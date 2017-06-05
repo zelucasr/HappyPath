@@ -76,10 +76,109 @@ public class Grid {
 				matrix[i][j] = new Node(i,j, columns);
 			}
 		}
+		paintGrid();
 	}
 
 	public void happyPath() throws InterruptedException {
+		if (destiny == null || source == null) {
+			System.out.println("Defina um nó Source e um nó Destiny.");
+		} else {
+			saveState();
+			//long tempoInicial = System.nanoTime();
+			// ALGORITMO
+			//>> COMPLEXIDADE PARTE 1: O(268n) > O(n)
+			//>> COMPLEXIDADE PARTE 2: O(4n) + Omega((9/8)(n^2 - 2n))
+			//>> COMPLEXCIDADE TOTAL: O(272n) + Omega((9/8)(n^2 - 2n))
 
+			ArrayList<Integer> resultado = new ArrayList<Integer>();	// COMPLEXIDADE: 1
+			actual = source;											// COMPLEXIDADE: 1
+			resultado.add(actual.id);									// COMPLEXIDADE: 1
+			// PARTE 1 //>> COMPLEXIDADE: 268n
+			while (actual.id != destiny.id) {							// COMPLEXIDADE: O(4n)
+				// SEM INTERFACE
+//				Point next = getBestDistanceSemInterface(); 			// COMPLEXIDADE: O(61)
+//				if (next.i != -1) {										// COMPLEXIDADE: 1
+//					actual.visited = true;								// COMPLEXIDADE: 1
+//					if (actual.decisions.size() == 0) {					// COMPLEXIDADE: 1
+//						matrix[actual.i][actual.j].setValid(false); 	// COMPLEXIDADE: 1
+//					}
+//					actual = matrix[next.i][next.j];					// COMPLEXIDADE: 1
+//					resultado.add(actual.id);							// COMPLEXIDADE: 1
+//				} else {
+//					resultado.add(-1);									// COMPLEXIDADE: 1
+//					System.out.println("Não achou caminho.");			// Interface, não entra na conta.
+//					break;
+//				}
+
+				// COM INTERFACE
+				Point next = getBestDistance();
+				if (next.i != -1) {
+					setVisited(actual);
+					if (actual.decisions.size() == 0) {
+						setInvalid(actual.i, actual.j);
+					}
+					actual = matrix[next.i][next.j];
+					resultado.add(actual.id);
+					setActual(actual.id);
+					Thread.sleep(delay);
+				} else {
+					resultado.add(-1);
+					System.out.println("Não achou caminho.");
+					break;
+				}
+			}
+
+			// PARTE 2 //>> COMPLEXIDADE: O(4n) + Omega((9/8)(n^2 - 2n)), depois de algumas simplificações
+			/*
+			 * Como descrito no relatório, o pior caso para essa parte do algoritmo é quando não há atalhos no caminho gerado,
+			 * assim o caminho nunca será encurtado nos laços mais internos, e os laços mais externos serão executados a quantidade
+			 * máxima de vezes. Nesse caso, o tamanho do caminho gerado é um pouco maior que n/2. Por isso iremos usar n/2 o tamanho
+			 * do caminho como n/2 e a notação Omega, uma vez que sabemos que o caminho será um pouco maior que isso.
+			 */
+			if(resultado.get(resultado.size()-1) != -1) {						// COMPLEXIDADE: O(1)
+				for (int i = 0; i < resultado.size(); i++) {					// COMPLEXIDADE: 0 <= i <= length
+					for (int j = resultado.size()-1; j > i+1; j--) {			// COMPLEXIDADE: i < j < length
+						if (resultado.get(i) == resultado.get(j)) {				// COMPLEXIDADE: 1
+							for (int k = j; k > i; k--) {
+								resultado.remove(k);
+							}
+							break;
+						}
+
+						if (isAdjacent(resultado.get(i), resultado.get(j))) {	// COMPLEXIDADE: 8
+							for (int k = j-1; k > i; k--) {
+								resultado.remove(k);
+							}
+							break;
+						}
+					}
+				}
+			}
+			//long tempoFinal = System.nanoTime();
+
+			int[] toPrint = new int[resultado.size()+2];
+			toPrint[0] = source.id;
+			toPrint[1] = destiny.id;
+			for (int i = 0; i < resultado.size(); i++) {
+				toPrint[i+2] = resultado.get(i);
+			}
+			printResult(toPrint);
+			//System.out.println("" + (tempoFinal-tempoInicial));
+
+			//System.out.println("LOOPS: " + loops + "RESULTADO SIZE: " + resultado.size());
+
+//			for (int i = 0; i < matrix.length; i++) {
+//				for (int j = 0; j < matrix[i].length; j++) {
+//					if (matrix[i][j].decisions != null) {
+//						System.out.print("0" + matrix[i][j].decisions.size() + " ");
+//					} else {
+//						System.out.print("-1");
+//					}
+//				}
+//				System.out.println("");
+//			}
+//			System.out.println("");
+		}
 	}
 
 	public Point getBestDistance() { //Pega o ponto com a melhor distância //>> COMPLEXIDADE: O(61)
@@ -89,13 +188,45 @@ public class Grid {
 
 		if (actual.decisions.size() > 0) { 																						// COMPLEXIDADE: 1
 			Point toReturn; 																									// COMPLEXIDADE: 1
-								// Se tem apenas 1 decisao possivel 						// COMPLEXIDADE: 1
-			toReturn = actual.decisions.get(0); 																			// COMPLEXIDADE: 1
+
+			if (actual.decisions.size() == 1) { 					// Se tem apenas 1 decisao possivel 						// COMPLEXIDADE: 1
+				toReturn = actual.decisions.get(0); 																			// COMPLEXIDADE: 1
+			} else if (actual.decisions.size() == 2) { 				// Se tem 2 decisoes possiveis 								// COMPLEXIDADE: 1
+				toReturn = getBestOfTwo(actual.decisions);																		// COMPLEXIDADE: O(24)
+			} else if (actual.decisions.size() == 3) { 				// Se ter 3 decisoes possiveis 								// COMPLEXIDADE: 1
+				toReturn = getBestOfThree(actual.decisions); 																	// COMPLEXIDADE: O(26)
+			} else {												// Se tem 4 decisoes possiveis (que eh o maximo)
+				toReturn = getBestOfFour(actual.decisions); 																	// COMPLEXIDADE: O(28)
+			}
 
 			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size máximo igual a  4
 			return toReturn; 										// COMPLEXIDADE: 1
 		}
 		return new Point();											// COMPLEXIDADE: 1
+	}
+
+	public Point getBestDistanceSemInterface() { //Pega o ponto com a melhor distância //>> COMPLEXIDADE: 61
+		if (actual.decisions == null) { 																						// COMPLEXIDADE: 1
+			actual.decisions = calcDistances(); 																				// COMPLEXIDADE: O(22)
+		}
+
+		if (actual.decisions.size() > 0) { 																						// COMPLEXIDADE: 1
+			Point toReturn; 																									// COMPLEXIDADE: 1
+
+			if (actual.decisions.size() == 1) { 					// Se tem apenas 1 decisao possivel							// COMPLEXIDADE: 1
+				toReturn = actual.decisions.get(0); 																			// COMPLEXIDADE: 1
+			} else if (actual.decisions.size() == 2) { 				// Se tem 2 decisoes possiveis 								// COMPLEXIDADE: 1
+				toReturn = getBestOfTwo(actual.decisions); 																		// COMPLEXIDADE: O(24)
+			} else if (actual.decisions.size() == 3) { 				// Se ter 3 decisoes possiveis								// COMPLEXIDADE: 1
+				toReturn = getBestOfThree(actual.decisions); 																	// COMPLEXIDADE: O(26)
+			} else {												// Se tem 4 decisoes possiveis (que eh o maximo)
+				toReturn = getBestOfFour(actual.decisions); 																	// COMPLEXIDADE: O(28)
+			}
+
+			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size máximo igual a  4
+			return toReturn; 																									// COMPLEXIDADE: 1
+		}
+		return new Point();																										// COMPLEXIDADE: 1
 	}
 
 	public Point getBestOfTwo(ArrayList<Point> points) { //>> COMPLEXIDADE: O(24)
@@ -171,7 +302,7 @@ public class Grid {
 		return toReturn;																											// COMPLEXIDADE: 1
 	}
 
-	public Point getLower(ArrayList<Point> points) {
+	public Point getLower(ArrayList<Point> points) { //>> COMPLEXIDADE: O(1)
 		Point toReturn;									// COMPLEXIDADE: 1
 		if (points.size() > 0) {						// COMPLEXIDADE: 1
 			Point p = points.get(0);					// COMPLEXIDADE: 1
@@ -189,7 +320,7 @@ public class Grid {
 		return null;									// COMPLEXIDADE: 1
 	}
 
-	public ArrayList<Point> calcDistances(){
+	public ArrayList<Point> calcDistances(){	//>> COMPLEXIDADE: 22
 		ArrayList<Point> decisions = new ArrayList<Point>(); 																					// COMPLEXIDADE: 1
 		// LEFT
 		if(actual.j!=0 && matrix[actual.i][actual.j-1].valid){ // Se não estiver na esquerda e o da esquerda for valido 						// COMPLEXIDADE: 1
@@ -223,19 +354,30 @@ public class Grid {
 			Point p = new Point(actual.i+1, actual.j); 																							// COMPLEXIDADE: 1
 			decisions.add(p); 																													// COMPLEXIDADE: 1
 		}
-		return decisions;
+		return decisions; 																														// COMPLEXIDADE: 1
 	}
 
-	public boolean wasVisited(Point p) {
-		return (matrix[p.i][p.j].visited);
+	public boolean wasVisited(Point p) { //>> COMPLEXIDADE: 1
+		return (matrix[p.i][p.j].visited); // COMPLEXIDADE: 1
 	}
 
-	public boolean isAdjacent(int id1, int id2) {
+	public boolean isAdjacent(int id1, int id2) { //>> COMPLEXIDADE: 1
 		return ((id1/columns == id2/columns) && (id1%columns == (id2%columns)+1)) ||
-				((id1/columns == id2/columns) && (id1%columns == (id2%columns)-1)) ||
-				((id1/columns == (id2/columns)-1) && (id1%columns == id2%columns)) ||
-				((id1/columns == (id2/columns)+1) && (id1%columns == id2%columns));	// COMPLEXIDADE: 1
+			((id1/columns == id2/columns) && (id1%columns == (id2%columns)-1)) ||
+			((id1/columns == (id2/columns)-1) && (id1%columns == id2%columns)) ||
+			((id1/columns == (id2/columns)+1) && (id1%columns == id2%columns));	// COMPLEXIDADE: 1
 	}
+
+	public void printResult(int [] resultado) {
+		System.out.print("\n" + resultado[0] + " to " + resultado[1] + ": ");
+		for (int i = 2; i < resultado.length; i++) {
+			System.out.print(resultado[i] + " ");
+		}
+	}
+
+	/*
+	 * GUI
+	 */
 
 	/*
 	 * Actual and Visisted
