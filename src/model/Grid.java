@@ -98,7 +98,15 @@ public class Grid {
 		return new Point();											// COMPLEXIDADE: 1
 	}
 
-
+	public Point getBestOfTwo(ArrayList<Point> points) {
+		if (wasVisited(points.get(0)) != true && wasVisited(points.get(1)) != true) {
+			return getLower(points);
+		} else if (wasVisited(points.get(0)) != true) {
+			return points.get(0);
+		} else {
+			return points.get(1);
+		}
+	}
 
 	public Point getLower(ArrayList<Point> points) {
 		Point toReturn;									// COMPLEXIDADE: 1
