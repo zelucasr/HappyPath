@@ -112,6 +112,31 @@ public class Grid {
 		return toReturn; 												// COMPLEXIDADE: 1
 	}
 
+	public Point getBestOfThree(ArrayList<Point> points) { //>> COMPLEXIDADE: 26
+		Point toReturn; 																				// COMPLEXIDADE: 1
+		if (!wasVisited(points.get(0)) && !wasVisited(points.get(1)) && !wasVisited(points.get(2))) {	// COMPLEXIDADE: 3
+			toReturn = getLower(points); 																// COMPLEXIDADE: 18
+		} else if (wasVisited(points.get(0))) { 														// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>();												// COMPLEXIDADE: 1
+			aux.add(points.get(1)); 																	// COMPLEXIDADE: 1
+			aux.add(points.get(2)); 																	// COMPLEXIDADE: 1
+			toReturn = getBestOfTwo(aux); 																// COMPLEXIDADE: 24
+		} else if (wasVisited(points.get(1))) { 														// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>(); 												// COMPLEXIDADE: 1
+			aux.add(points.get(0)); 																	// COMPLEXIDADE: 1
+			aux.add(points.get(2)); 																	// COMPLEXIDADE: 1
+			toReturn = getBestOfTwo(aux);  																// COMPLEXIDADE: 24
+		} else if (wasVisited(points.get(2))) { 														// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>();												// COMPLEXIDADE: 1
+			aux.add(points.get(0)); 																	// COMPLEXIDADE: 1
+			aux.add(points.get(1)); 																	// COMPLEXIDADE: 1
+			toReturn = getBestOfTwo(aux); 																// COMPLEXIDADE: 24
+		} else {
+			toReturn = getLower(points); 																// COMPLEXIDADE: 18
+		}
+		return toReturn; 																				// COMPLEXIDADE: 1
+	}
+
 	public Point getLower(ArrayList<Point> points) {
 		Point toReturn;									// COMPLEXIDADE: 1
 		if (points.size() > 0) {						// COMPLEXIDADE: 1
