@@ -22,35 +22,35 @@ import util.MyActionListener;
 
 public class Grid {
 	static Grid grid = null;
-
+	
 	static Node[][] matrix;
 	static int columns;
 	static int lines;
-
+	
 	static JFrame main_frame;
 	static JButton[][] nodes;
-
+	
 	static Node source;
 	static Node actual;
 	static Node destiny;
-
+	
 	static Color actualColor = new Color(155, 205, 255);
 	static Color visitedColor = new Color(205, 230, 255);
 	static Color noOptionsColor = new Color(255, 178, 102);
-
+	
 	static Color sourceColor = new Color(204, 153, 255);
 	static Color destinyColor = new Color(255, 205, 230);
-
+	
 	static Color validColor = new Color(155, 255, 155);
 	static Color invalidColor = new Color(255, 155,155);
-
+	
 	static long delay = 5;
 	public static int bombPower = 1;
-
+	
 	static State state = new State();
-
+	
 	final JFileChooser fc = new JFileChooser("C:\\");
-
+	
 	public static Grid getSharedInstance() {
 		if (grid == null) {
 			@SuppressWarnings("resource")
@@ -65,42 +65,54 @@ public class Grid {
 			return grid;
 		}
 	}
-
+	
 	public Grid(int lines, int columns) {
 		matrix = new Node[lines][columns];
 		Grid.columns = columns;
 		Grid.lines = lines;
-
+		
 		for(int i = 0; i < lines; i++) {
 			for(int j = 0; j < columns; j++){
 				matrix[i][j] = new Node(i,j, columns);
 			}
 		}
 	}
-
+	
 	public void happyPath() throws InterruptedException {
-
+		
 	}
-
-	public Point getBestDistance() { //Pega o ponto com a melhor distância //>> COMPLEXIDADE: O(61)
+	
+	public Point getBestDistance() { //Pega o ponto com a melhor distância //>> COMPLEXIDADE: O(61)		
 		if (actual.decisions == null) { 																						// COMPLEXIDADE: 1
 			actual.decisions = calcDistances(); 																				// COMPLEXIDADE: O(22)
 		}
-
+		
 		if (actual.decisions.size() > 0) { 																						// COMPLEXIDADE: 1
 			Point toReturn; 																									// COMPLEXIDADE: 1
 								// Se tem apenas 1 decisao possivel 						// COMPLEXIDADE: 1
 			toReturn = actual.decisions.get(0); 																			// COMPLEXIDADE: 1
-
+			
 			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size máximo igual a  4
 			return toReturn; 										// COMPLEXIDADE: 1
 		}
 		return new Point();											// COMPLEXIDADE: 1
 	}
-
-
-
-	public Point getLower(ArrayList<Point> points) {
+	
+	public Point getBestOfTwo(ArrayList<Point> points) { //>> COMPLEXIDADE: O(24)
+		Point toReturn; 												// COMPLEXIDADE: 1
+		if (!wasVisited(points.get(0)) && !wasVisited(points.get(1))) {	// COMPLEXIDADE: 2
+			toReturn = getLower(points); 								// COMPLEXIDADE: 18
+		} else if (!wasVisited(points.get(0))) { 						// COMPLEXIDADE: 1
+			toReturn = points.get(0); 									// COMPLEXIDADE: 1
+		} else if (!wasVisited(points.get(1))) { 						// COMPLEXIDADE: 1
+			toReturn = points.get(1); 									// COMPLEXIDADE: 1
+		} else {
+			toReturn = getLower(points); 								// COMPLEXIDADE: 18
+		}
+		return toReturn; 												// COMPLEXIDADE: 1
+	}
+	
+	public Point getLower(ArrayList<Point> points) { 
 		Point toReturn;									// COMPLEXIDADE: 1
 		if (points.size() > 0) {						// COMPLEXIDADE: 1
 			Point p = points.get(0);					// COMPLEXIDADE: 1
@@ -117,7 +129,7 @@ public class Grid {
 		}
 		return null;									// COMPLEXIDADE: 1
 	}
-
+	
 	public ArrayList<Point> calcDistances(){
 		ArrayList<Point> decisions = new ArrayList<Point>(); 																					// COMPLEXIDADE: 1
 		// LEFT
@@ -154,38 +166,38 @@ public class Grid {
 		}
 		return decisions;
 	}
-
+	
 	public boolean wasVisited(Point p) {
 		return (matrix[p.i][p.j].visited);
 	}
-
-	public boolean isAdjacent(int id1, int id2) {
-		return ((id1/columns == id2/columns) && (id1%columns == (id2%columns)+1)) ||
+	
+	public boolean isAdjacent(int id1, int id2) {	
+		return ((id1/columns == id2/columns) && (id1%columns == (id2%columns)+1)) || 
 				((id1/columns == id2/columns) && (id1%columns == (id2%columns)-1)) ||
 				((id1/columns == (id2/columns)-1) && (id1%columns == id2%columns)) ||
 				((id1/columns == (id2/columns)+1) && (id1%columns == id2%columns));	// COMPLEXIDADE: 1
 	}
-
+	
 	/*
 	 * Actual and Visisted
 	 */
-
+	
 	public void setActual(int id) {					//>> COMPLEXIDADE: 1
 		actual = matrix[id/columns][id%columns]; 	// COMPLEXIDADE: 1
 		nodes[id/columns][id%columns].setBackground(actualColor);
 		nodes[id/columns][id%columns].repaint();
 	}
-
+	
 	public void setVisited(Node node) { //>> COMPLEXIDADE: 2
 		node.visited = true;
 		nodes[node.i][node.j].setBackground(visitedColor); 	// COMPLEXIDADE: 1
 		nodes[node.i][node.j].repaint();					// COMPLEXIDADE: 1
 	}
-
+	
 	/*
 	 * Source and Destiny
 	 */
-
+	
 	public static void setSource(int id) {
 		if (source == null) {
 			source = matrix[id/columns][id%columns];
@@ -199,11 +211,11 @@ public class Grid {
 			nodes[id/columns][id%columns].repaint();
 		}
 	}
-
+	
 	public static void setSource(int i, int j) {
 		setSource(i*lines+j);
 	}
-
+	
 	public static void setDestiny(int id) {
 		if (destiny == null) {
 			destiny = matrix[id/columns][id%columns];
@@ -215,23 +227,23 @@ public class Grid {
 			destiny = matrix[id/columns][id%columns];
 			nodes[id/columns][id%columns].setBackground(destinyColor);
 			nodes[id/columns][id%columns].repaint();
-		}
+		}		
 	}
-
+	
 	public static void setDestiny(int i, int j) {
 		setDestiny(i*lines+j);
 	}
-
+	
 	/*
 	 * Valid and Invalid
 	 */
-
+		
 	public static void setInvalid(int i, int j) { 		//>> COMPLEXIDADE: 1
 		matrix[i][j].setValid(false); 					// COMPLEXIDADE: 1
 		nodes[i][j].setBackground(invalidColor);
 		nodes[i][j].repaint();
 	}
-
+	
 	public void setValid(int i, int j) {
 		matrix[i][j].setValid(true);
 		nodes[i][j].setBackground(validColor);
@@ -247,12 +259,12 @@ public class Grid {
 			}
 		}
 	}
-
+	
 	public void paintGrid(){
 		if (main_frame != null) {
 			main_frame.dispose();
 		}
-
+		
 		int nodeSize = 32;
 		int gap = 5;
 		main_frame = new JFrame("Unhappy Path");
@@ -260,7 +272,7 @@ public class Grid {
 		main_frame.setLayout(null);
 		main_frame.setSize((columns*nodeSize)+((columns+2)*gap) > 1050 ? (columns*nodeSize)+((columns+2)*gap) : 1050, 30+30+(lines*nodeSize)+((lines+2)*gap));
 		main_frame.setLocationRelativeTo(null);
-		main_frame.setResizable(false);
+		main_frame.setResizable(false);	
 		nodes = new JButton[lines][columns];
 		for(int i = 0; i < lines; i++){
 			for(int j = 0; j < columns; j++){
@@ -284,7 +296,7 @@ public class Grid {
 				main_frame.add(nodes[i][j]);
 			}
 		}
-
+		
 		JButton runBtn = new JButton("Run");
 		runBtn.setBounds(5, 5, 150, 25);
 		runBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -303,7 +315,7 @@ public class Grid {
 			}
 		});
 		main_frame.add(runBtn);
-
+		
 		JButton resetBtn = new JButton("Reset");
 		resetBtn.setBounds(160, 5, 150, 25);
 		resetBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -318,11 +330,11 @@ public class Grid {
 			}
 		});
 		main_frame.add(resetBtn);
-
+		
 		JTextField delayTxtFld = new JTextField();
 		delayTxtFld.setBounds(315, 5, 50, 25);
 		main_frame.add(delayTxtFld);
-
+		
 		JButton setDelayBtn = new JButton("> Set Delay");
 		setDelayBtn.setBounds(370, 5, 150, 25);
 		setDelayBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -332,11 +344,11 @@ public class Grid {
 			}
 		});
 		main_frame.add(setDelayBtn);
-
+		
 		JTextField bombPowerTxtFld = new JTextField();
 		bombPowerTxtFld.setBounds(525, 5, 50, 25);
 		main_frame.add(bombPowerTxtFld);
-
+		
 		JButton setBombPowerBtn = new JButton("> Set Bomb Power");
 		setBombPowerBtn.setBounds(580, 5, 150, 25);
 		setBombPowerBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -346,14 +358,14 @@ public class Grid {
 			}
 		});
 		main_frame.add(setBombPowerBtn);
-
+		
 		JButton openStateBtn = new JButton("Open State");
 		openStateBtn.setBounds(735, 5, 150, 25);
 		openStateBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		openStateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int returnVal = fc.showOpenDialog(Grid.main_frame);
-
+				
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
 					try {
@@ -381,7 +393,7 @@ public class Grid {
 			}
 		});
 		main_frame.add(openStateBtn);
-
+		
 		JButton saveStateBtn = new JButton("Save State");
 		saveStateBtn.setBounds(890, 5, 150, 25);
 		saveStateBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -389,7 +401,7 @@ public class Grid {
 			public void actionPerformed(ActionEvent e) {
 				if (Grid.source != null && Grid.destiny != null) {
 					int returnVal = fc.showSaveDialog(Grid.main_frame);
-
+					
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						File file = fc.getSelectedFile();
 						try {
@@ -415,14 +427,14 @@ public class Grid {
 			}
 		});
 		main_frame.add(saveStateBtn);
-
+		
 		main_frame.setVisible(true);
 	}
-
+	
 	public static void dropBomb(int i, int j, int power) {
 		setInvalid(i, j);
 		nodes[i][j].setBackground(invalidColor);
-
+		
 		if (power > 0) {
 			if (j-1 >= 0) {
 				dropBomb(i, j-1, power-1);
@@ -436,10 +448,10 @@ public class Grid {
 			if (i+1 <= lines-1) {
 				dropBomb(i+1, j, power-1);
 			}
-
+				
 		}
 	}
-
+	
 	public void toogleValid(int i, int j) {
 		if (nodes[i][j].getBackground() == validColor) {
 			setInvalid(i, j);
@@ -447,7 +459,7 @@ public class Grid {
 			setValid(i, j);
 		}
 	}
-
+	
 	public void reset() {
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
@@ -461,13 +473,13 @@ public class Grid {
 			setSource(state.source);
 		}
 		if (state.destiny != null) {
-			setDestiny(state.destiny);
+			setDestiny(state.destiny);			
 		}
 		if (state.invalidNodes != null) {
 			injectFaultListByNode(state.invalidNodes);
 		}
 	}
-
+	
 	public void saveState() {
 		ArrayList<Integer> invalidNodesIds = new ArrayList<Integer>();
 		for (int i = 0; i < matrix.length; i++) {
@@ -477,12 +489,12 @@ public class Grid {
 				}
 			}
 		}
-
+		
 		int[] invalidNodes = new int[invalidNodesIds.size()];
 		for (int i = 0; i < invalidNodesIds.size(); i++) {
 			invalidNodes[i] = invalidNodesIds.get(i);
 		}
-
+		
 		state = new State(source.id, destiny.id, invalidNodes);
 	}
 
