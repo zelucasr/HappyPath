@@ -137,6 +137,40 @@ public class Grid {
 		return toReturn; 																				// COMPLEXIDADE: 1
 	}
 
+	public Point getBestOfFour(ArrayList<Point> points) { //>> COMPLEXIDADE: 28
+		Point toReturn; 																											// COMPLEXIDADE: 1
+		if (!wasVisited(points.get(0)) && !wasVisited(points.get(1)) && !wasVisited(points.get(2)) && !wasVisited(points.get(3))) { // COMPLEXIDADE: 4
+			toReturn = getLower(points); 																							// COMPLEXIDADE: 18
+		} else if (wasVisited(points.get(0))) { 																					// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>(); 																			// COMPLEXIDADE: 1
+			aux.add(points.get(1)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(2)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(3)); 																								// COMPLEXIDADE: 1
+			toReturn = getBestOfThree(aux); 																						// COMPLEXIDADE: 26
+		} else if (wasVisited(points.get(1))) { 																					// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>(); 																			// COMPLEXIDADE: 1
+			aux.add(points.get(0)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(2)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(3)); 																								// COMPLEXIDADE: 1
+			toReturn = getBestOfThree(aux); 																						// COMPLEXIDADE: 26
+		} else if (wasVisited(points.get(2))) { 																					// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>(); 																			// COMPLEXIDADE: 1
+			aux.add(points.get(0)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(1)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(3)); 																								// COMPLEXIDADE: 1
+			toReturn = getBestOfThree(aux); 																						// COMPLEXIDADE: 26
+		} else if (wasVisited(points.get(3))) { 																					// COMPLEXIDADE: 1
+			ArrayList<Point> aux = new ArrayList<Point>(); 																			// COMPLEXIDADE: 1
+			aux.add(points.get(0)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(1)); 																								// COMPLEXIDADE: 1
+			aux.add(points.get(2)); 																								// COMPLEXIDADE: 1
+			toReturn = getBestOfThree(aux); 																						// COMPLEXIDADE: 26
+		} else {
+			toReturn = getLower(points); 																							// COMPLEXIDADE: 18
+		}
+		return toReturn;																											// COMPLEXIDADE: 1
+	}
+
 	public Point getLower(ArrayList<Point> points) {
 		Point toReturn;									// COMPLEXIDADE: 1
 		if (points.size() > 0) {						// COMPLEXIDADE: 1
