@@ -79,9 +79,9 @@ public class Grid {
 		paintGrid();
 	}
 
-	public void happyPath() throws InterruptedException {
+	public static void happyPath() throws InterruptedException {
 		if (destiny == null || source == null) {
-			System.out.println("Defina um nó Source e um nó Destiny.");
+			System.out.println("Defina um node Source e um node Destiny.");
 		} else {
 			saveState();
 			//long tempoInicial = System.nanoTime();
@@ -106,7 +106,7 @@ public class Grid {
 //					resultado.add(actual.id);							// COMPLEXIDADE: 1
 //				} else {
 //					resultado.add(-1);									// COMPLEXIDADE: 1
-//					System.out.println("Não achou caminho.");			// Interface, não entra na conta.
+//					System.out.println("Nao achou caminho.");			// Interface, nao entra na conta.
 //					break;
 //				}
 
@@ -123,17 +123,17 @@ public class Grid {
 					Thread.sleep(delay);
 				} else {
 					resultado.add(-1);
-					System.out.println("Não achou caminho.");
+					System.out.println("Nao achou caminho.");
 					break;
 				}
 			}
 
-			// PARTE 2 //>> COMPLEXIDADE: O(4n) + Omega((9/8)(n^2 - 2n)), depois de algumas simplificações
+			// PARTE 2 //>> COMPLEXIDADE: O(4n) + Omega((9/8)(n^2 - 2n)), depois de algumas simplificacoes
 			/*
-			 * Como descrito no relatório, o pior caso para essa parte do algoritmo é quando não há atalhos no caminho gerado,
-			 * assim o caminho nunca será encurtado nos laços mais internos, e os laços mais externos serão executados a quantidade
-			 * máxima de vezes. Nesse caso, o tamanho do caminho gerado é um pouco maior que n/2. Por isso iremos usar n/2 o tamanho
-			 * do caminho como n/2 e a notação Omega, uma vez que sabemos que o caminho será um pouco maior que isso.
+			 * Como descrito no relatorio, o pior caso para essa parte do algoritmo eh quando nao ha atalhos no caminho gerado,
+			 * assim o caminho nunca sera encurtado nos lacos mais internos, e os lacos mais externos serao executados a quantidade
+			 * maxima de vezes. Nesse caso, o tamanho do caminho gerado eh um pouco maior que n/2. Por isso iremos usar n/2 o tamanho
+			 * do caminho como n/2 e a notacao Omega, uma vez que sabemos que o caminho sera um pouco maior que isso.
 			 */
 			if(resultado.get(resultado.size()-1) != -1) {						// COMPLEXIDADE: O(1)
 				for (int i = 0; i < resultado.size(); i++) {					// COMPLEXIDADE: 0 <= i <= length
@@ -181,7 +181,7 @@ public class Grid {
 		}
 	}
 
-	public Point getBestDistance() { //Pega o ponto com a melhor distância //>> COMPLEXIDADE: O(61)
+	public static Point getBestDistance() { //Pega o ponto com a melhor distancia //>> COMPLEXIDADE: O(61)
 		if (actual.decisions == null) { 																						// COMPLEXIDADE: 1
 			actual.decisions = calcDistances(); 																				// COMPLEXIDADE: O(22)
 		}
@@ -199,13 +199,13 @@ public class Grid {
 				toReturn = getBestOfFour(actual.decisions); 																	// COMPLEXIDADE: O(28)
 			}
 
-			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size máximo igual a  4
+			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size maximo igual a  4
 			return toReturn; 										// COMPLEXIDADE: 1
 		}
 		return new Point();											// COMPLEXIDADE: 1
 	}
 
-	public Point getBestDistanceSemInterface() { //Pega o ponto com a melhor distância //>> COMPLEXIDADE: 61
+	public Point getBestDistanceSemInterface() { //Pega o ponto com a melhor distancia //>> COMPLEXIDADE: 61
 		if (actual.decisions == null) { 																						// COMPLEXIDADE: 1
 			actual.decisions = calcDistances(); 																				// COMPLEXIDADE: O(22)
 		}
@@ -223,13 +223,13 @@ public class Grid {
 				toReturn = getBestOfFour(actual.decisions); 																	// COMPLEXIDADE: O(28)
 			}
 
-			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size máximo igual a  4
+			actual.decisions.remove(toReturn); 						// Remove a decisao tomada da lista de decisoes possiveis	// COMPLEXIDADE: O(4), pois decisions tem size maximo igual a  4
 			return toReturn; 																									// COMPLEXIDADE: 1
 		}
 		return new Point();																										// COMPLEXIDADE: 1
 	}
 
-	public Point getBestOfTwo(ArrayList<Point> points) { //>> COMPLEXIDADE: O(24)
+	public static Point getBestOfTwo(ArrayList<Point> points) { //>> COMPLEXIDADE: O(24)
 		Point toReturn; 												// COMPLEXIDADE: 1
 		if (!wasVisited(points.get(0)) && !wasVisited(points.get(1))) {	// COMPLEXIDADE: 2
 			toReturn = getLower(points); 								// COMPLEXIDADE: 18
@@ -243,7 +243,7 @@ public class Grid {
 		return toReturn; 												// COMPLEXIDADE: 1
 	}
 
-	public Point getBestOfThree(ArrayList<Point> points) { //>> COMPLEXIDADE: 26
+	public static Point getBestOfThree(ArrayList<Point> points) { //>> COMPLEXIDADE: 26
 		Point toReturn; 																				// COMPLEXIDADE: 1
 		if (!wasVisited(points.get(0)) && !wasVisited(points.get(1)) && !wasVisited(points.get(2))) {	// COMPLEXIDADE: 3
 			toReturn = getLower(points); 																// COMPLEXIDADE: 18
@@ -268,7 +268,7 @@ public class Grid {
 		return toReturn; 																				// COMPLEXIDADE: 1
 	}
 
-	public Point getBestOfFour(ArrayList<Point> points) { //>> COMPLEXIDADE: 28
+	public static Point getBestOfFour(ArrayList<Point> points) { //>> COMPLEXIDADE: 28
 		Point toReturn; 																											// COMPLEXIDADE: 1
 		if (!wasVisited(points.get(0)) && !wasVisited(points.get(1)) && !wasVisited(points.get(2)) && !wasVisited(points.get(3))) { // COMPLEXIDADE: 4
 			toReturn = getLower(points); 																							// COMPLEXIDADE: 18
@@ -302,13 +302,13 @@ public class Grid {
 		return toReturn;																											// COMPLEXIDADE: 1
 	}
 
-	public Point getLower(ArrayList<Point> points) { //>> COMPLEXIDADE: O(1)
+	public static Point getLower(ArrayList<Point> points) { //>> COMPLEXIDADE: O(1)
 		Point toReturn;									// COMPLEXIDADE: 1
 		if (points.size() > 0) {						// COMPLEXIDADE: 1
 			Point p = points.get(0);					// COMPLEXIDADE: 1
 			toReturn = p;								// COMPLEXIDADE: 1
 			double lower = matrix[p.i][p.j].distance;	// COMPLEXIDADE: 1
-			for(int x = 1; x < points.size(); x++) {	// COMPLEXIDADE: O(3), uma vez que points tem size 4 no max, e o laço itera a partir da posicao 1
+			for(int x = 1; x < points.size(); x++) {	// COMPLEXIDADE: O(3), uma vez que points tem size 4 no max, e o laco itera a partir da posicao 1
 				p = points.get(x);						// COMPLEXIDADE: 1
 				if(matrix[p.i][p.j].distance < lower){	// COMPLEXIDADE: 1
 					toReturn = p;						// COMPLEXIDADE: 1
@@ -320,10 +320,10 @@ public class Grid {
 		return null;									// COMPLEXIDADE: 1
 	}
 
-	public ArrayList<Point> calcDistances(){	//>> COMPLEXIDADE: 22
+	public static ArrayList<Point> calcDistances(){	//>> COMPLEXIDADE: 22
 		ArrayList<Point> decisions = new ArrayList<Point>(); 																					// COMPLEXIDADE: 1
 		// LEFT
-		if(actual.j!=0 && matrix[actual.i][actual.j-1].valid){ // Se não estiver na esquerda e o da esquerda for valido 						// COMPLEXIDADE: 1
+		if(actual.j!=0 && matrix[actual.i][actual.j-1].valid){ // Se nao estiver na esquerda e o da esquerda for valido 						// COMPLEXIDADE: 1
 			if (matrix[actual.i][actual.j-1].distance == -1) { 																					// COMPLEXIDADE: 1
 				matrix[actual.i][actual.j-1].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i), 2) + Math.pow((destiny.j)-(actual.j-1), 2)); // COMPLEXIDADE: 1
 			}
@@ -331,7 +331,7 @@ public class Grid {
 			decisions.add(p); 																													// COMPLEXIDADE: 1
 		}
 		// UP
-		if(actual.i!=0 && matrix[actual.i-1][actual.j].valid){ //Se não estiver em cima e o de cima for valido 									// COMPLEXIDADE: 1
+		if(actual.i!=0 && matrix[actual.i-1][actual.j].valid){ //Se nao estiver em cima e o de cima for valido 									// COMPLEXIDADE: 1
 			if (matrix[actual.i-1][actual.j].distance == -1) { 																					// COMPLEXIDADE: 1
 				matrix[actual.i-1][actual.j].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i-1), 2) + Math.pow((destiny.j)-(actual.j), 2)); // COMPLEXIDADE: 1
 			}
@@ -339,7 +339,7 @@ public class Grid {
 			decisions.add(p); 																													// COMPLEXIDADE: 1
 		}
 		// RIGHT
-		if(actual.j!=columns-1 && matrix[actual.i][actual.j+1].valid){ //Se não estiver na direita e o da direita for valido					// COMPLEXIDADE: 1
+		if(actual.j!=columns-1 && matrix[actual.i][actual.j+1].valid){ //Se nao estiver na direita e o da direita for valido					// COMPLEXIDADE: 1
 			if (matrix[actual.i][actual.j+1].distance == -1) { 																					// COMPLEXIDADE: 1
 				matrix[actual.i][actual.j+1].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i), 2) + Math.pow((destiny.j)-(actual.j+1), 2)); // COMPLEXIDADE: 1
 			}
@@ -347,7 +347,7 @@ public class Grid {
 			decisions.add(p); 																													// COMPLEXIDADE: 1
 		}
 		// DOWN
-		if(actual.i!=lines-1 && matrix[actual.i+1][actual.j].valid){ //Se não estiver em baixo e o de baixo for válido 							// COMPLEXIDADE: 1
+		if(actual.i!=lines-1 && matrix[actual.i+1][actual.j].valid){ //Se nao estiver em baixo e o de baixo for valido 							// COMPLEXIDADE: 1
 			if (matrix[actual.i+1][actual.j].distance == -1) { 																					// COMPLEXIDADE: 1
 				matrix[actual.i+1][actual.j].distance = Math.sqrt(Math.pow((destiny.i)-(actual.i+1), 2) + Math.pow((destiny.j)-(actual.j), 2)); // COMPLEXIDADE: 1
 			}
@@ -357,18 +357,18 @@ public class Grid {
 		return decisions; 																														// COMPLEXIDADE: 1
 	}
 
-	public boolean wasVisited(Point p) { //>> COMPLEXIDADE: 1
+	public static boolean wasVisited(Point p) { //>> COMPLEXIDADE: 1
 		return (matrix[p.i][p.j].visited); // COMPLEXIDADE: 1
 	}
 
-	public boolean isAdjacent(int id1, int id2) { //>> COMPLEXIDADE: 1
+	public static boolean isAdjacent(int id1, int id2) { //>> COMPLEXIDADE: 1
 		return ((id1/columns == id2/columns) && (id1%columns == (id2%columns)+1)) ||
 			((id1/columns == id2/columns) && (id1%columns == (id2%columns)-1)) ||
 			((id1/columns == (id2/columns)-1) && (id1%columns == id2%columns)) ||
 			((id1/columns == (id2/columns)+1) && (id1%columns == id2%columns));	// COMPLEXIDADE: 1
 	}
 
-	public void printResult(int [] resultado) {
+	public static void printResult(int [] resultado) {
 		System.out.print("\n" + resultado[0] + " to " + resultado[1] + ": ");
 		for (int i = 2; i < resultado.length; i++) {
 			System.out.print(resultado[i] + " ");
@@ -383,13 +383,13 @@ public class Grid {
 	 * Actual and Visisted
 	 */
 
-	public void setActual(int id) {					//>> COMPLEXIDADE: 1
+	public static void setActual(int id) {					//>> COMPLEXIDADE: 1
 		actual = matrix[id/columns][id%columns]; 	// COMPLEXIDADE: 1
 		nodes[id/columns][id%columns].setBackground(actualColor);
 		nodes[id/columns][id%columns].repaint();
 	}
 
-	public void setVisited(Node node) { //>> COMPLEXIDADE: 2
+	public static void setVisited(Node node) { //>> COMPLEXIDADE: 2
 		node.visited = true;
 		nodes[node.i][node.j].setBackground(visitedColor); 	// COMPLEXIDADE: 1
 		nodes[node.i][node.j].repaint();					// COMPLEXIDADE: 1
@@ -451,7 +451,7 @@ public class Grid {
 		nodes[i][j].repaint();
 	}
 
-	public void injectFaultListByNode(int[] routers){
+	public static void injectFaultsByNodeList(int[] routers){
 		for(int i = 0; i < routers.length; i++){
 			if(matrix[(routers[i]/columns)][(routers[i]%columns)].isValid()){
 				matrix[(routers[i]/columns)][(routers[i]%columns)].setValid(false);
@@ -585,9 +585,8 @@ public class Grid {
 						for (int i = 0; i < invalidNodesIds.size(); i++) {
 							invalidNodes[i] = invalidNodesIds.get(i);
 						}
-						injectFaultListByNode(invalidNodes);
+						injectFaultsByNodeList(invalidNodes);
 					} catch (FileNotFoundException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 				}
@@ -618,12 +617,11 @@ public class Grid {
 							}
 							fileWriter.close();
 						} catch (IOException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					}
 				} else {
-					System.out.println("Defina um nó Source e um nó Destiny.");
+					System.out.println("Defina um node Source e um node Destiny.");
 				}
 			}
 		});
@@ -677,11 +675,11 @@ public class Grid {
 			setDestiny(state.destiny);
 		}
 		if (state.invalidNodes != null) {
-			injectFaultListByNode(state.invalidNodes);
+			injectFaultsByNodeList(state.invalidNodes);
 		}
 	}
 
-	public void saveState() {
+	public static void saveState() {
 		ArrayList<Integer> invalidNodesIds = new ArrayList<Integer>();
 		for (int i = 0; i < matrix.length; i++) {
 			for (int j = 0; j < matrix[i].length; j++) {
@@ -700,6 +698,27 @@ public class Grid {
 	}
 
 	public static void main(String args[]) throws InterruptedException {
-		Grid.getSharedInstance();
+		if (args.length == 0) {
+			Grid.getSharedInstance();
+		} else {
+			int lines = Integer.parseInt(args[0]);
+			int columns = Integer.parseInt(args[1]);
+			
+			int source = Integer.parseInt(args[2]);
+			int destiny = Integer.parseInt(args[3]);
+			
+			Grid.grid = new Grid(lines, columns);
+			Grid.setSource(source);
+			Grid.setDestiny(destiny);
+			
+			if (args.length > 4) {
+				int[] invalidNodes = new int[args.length-4];
+				for (int i = 4; i < args.length; i++) {
+					invalidNodes[i-4] = Integer.parseInt(args[i]);
+				}
+				Grid.injectFaultsByNodeList(invalidNodes);
+			}
+			Grid.happyPath();
+		}
 	}
 }

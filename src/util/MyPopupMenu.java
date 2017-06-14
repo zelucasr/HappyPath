@@ -10,9 +10,6 @@ import javax.swing.JMenuItem;
 import model.Grid;
 
 public class MyPopupMenu extends JPopupMenu{
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	public int i, j;
 	public MyPopupMenu(int i, int j) {

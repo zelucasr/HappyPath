@@ -1,7 +1,7 @@
 package model;
 
-public class Point { //Classe para representar um ponto na matriz
-	public int i;	//É utilizada para guardar as possíveis decisões a serem tomadas.
+public class Point {	// Classe para representar um ponto na matriz
+	public int i;		// Eh utilizada para guardar as possiveis decisoes a serem tomadas.
 	public int j;
 	
 	public Point(){
