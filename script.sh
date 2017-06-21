@@ -1,5 +1,7 @@
+ls
 cd src/
 javac ./*/*.java
+mkdir tests/outputs
 
 for f in ../tests/inputs/*; do
     entrada=`cat $f`
