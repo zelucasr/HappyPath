@@ -59,14 +59,14 @@ public class Grid {
 			int lines = entrada.nextInt();
 			System.out.print("Digite a larguta do Grid: ");
 			int columns = entrada.nextInt();
-			grid = new Grid(lines, columns);
+			grid = new Grid(lines, columns, true);
 			return grid;
 		} else {
 			return grid;
 		}
 	}
 
-	public Grid(int lines, int columns) {
+	public Grid(int lines, int columns, boolean setVisible) {
 		matrix = new Node[lines][columns];
 		Grid.columns = columns;
 		Grid.lines = lines;
@@ -76,7 +76,9 @@ public class Grid {
 				matrix[i][j] = new Node(i,j, columns);
 			}
 		}
-		paintGrid();
+		if (setVisible) {
+			paintGrid();
+		}
 	}
 
 	public static void happyPath() throws InterruptedException {
@@ -574,7 +576,7 @@ public class Grid {
 						Scanner scan = new Scanner(file);
 						int lines = scan.nextInt();
 						int columns = scan.nextInt();
-						Grid.grid = new Grid(lines, columns);
+						Grid.grid = new Grid(lines, columns, true);
 						setSource(scan.nextInt());
 						setDestiny(scan.nextInt());
 						ArrayList<Integer> invalidNodesIds = new ArrayList<Integer>();
@@ -707,7 +709,7 @@ public class Grid {
 			int source = Integer.parseInt(args[2]);
 			int destiny = Integer.parseInt(args[3]);
 			
-			Grid.grid = new Grid(lines, columns);
+			Grid.grid = new Grid(lines, columns, false);
 			Grid.setSource(source);
 			Grid.setDestiny(destiny);
 			
